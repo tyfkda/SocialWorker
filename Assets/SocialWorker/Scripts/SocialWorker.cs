@@ -48,6 +48,16 @@ namespace SWorker
         }
 
         /// <summary>
+        /// 破棄直前処理
+        /// </summary>
+		void OnDestroy()
+		{
+#if !UNITY_EDITOR && UNITY_ANDROID
+			if (worker != null) worker.Dispose();
+#endif
+		}
+
+        /// <summary>
         /// Twitter投稿
         /// </summary>
         /// <param name="message">メッセージ</param>
