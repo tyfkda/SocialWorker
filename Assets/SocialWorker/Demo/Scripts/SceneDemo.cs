@@ -26,9 +26,10 @@ namespace SWorker
         void Start()
         {
             // Post画像は端末から読み込むので、ない場合はあらかじめ保存しておくこと
-			string imagePath = Application.persistentDataPath + "/image" + ExtensionImage;
+			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
             if (!File.Exists(imagePath)) 
             {
+                Directory.CreateDirectory(Application.persistentDataPath + "/share");
 				Texture2D texture = (Texture2D)Image.texture;
 				byte[] data = (ExtensionImage == ".png") ? texture.EncodeToPNG () : texture.EncodeToJPG ();
 				File.WriteAllBytes(imagePath, data); 
@@ -42,7 +43,7 @@ namespace SWorker
         {
 			string message   = "message";
 			string url       = "http://yedo-factory.co.jp/";
-			string imagePath = Application.persistentDataPath + "/image" + ExtensionImage;
+			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
 			SocialWorker.PostTwitter(message, url, imagePath, OnResult);
 //			SocialWorker.PostTwitter(message, "", OnResult);
 //			SocialWorker.PostTwitter("", imagePath, OnResult);
@@ -53,7 +54,7 @@ namespace SWorker
         /// </summary>
         public void OnPostFacebook()
         {
-			string imagePath = Application.persistentDataPath + "/image" + ExtensionImage;
+			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
 			SocialWorker.PostFacebook(imagePath, OnResult);
         }
 
@@ -63,7 +64,7 @@ namespace SWorker
         public void OnPostLine()
         {
 			string message   = "message";
-			string imagePath = Application.persistentDataPath + "/image" + ExtensionImage;
+			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
 			SocialWorker.PostLine(message, imagePath, OnResult);
 //			SocialWorker.PostLine(message, "", OnResult);
 //			SocialWorker.PostLine("", imagePath, OnResult);
@@ -74,7 +75,7 @@ namespace SWorker
         /// </summary>
         public void OnPostInstagram()
         {
-			string imagePath = Application.persistentDataPath + "/image" + ExtensionImage;
+			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
 			SocialWorker.PostInstagram(imagePath, OnResult);
         }
 
@@ -88,7 +89,7 @@ namespace SWorker
 			string[] bcc     = new string[] { "bcc@hoge.com" };
 			string subject   = "subject";
 			string message   = "message";
-			string imagePath = Application.persistentDataPath + "/image" + ExtensionImage;
+			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
 			SocialWorker.PostMail(to, cc, bcc, subject, message, imagePath, OnResult);
 //			SocialWorker.PostMail(message, "", OnResult);
 //			SocialWorker.PostMail("", imagePath, OnResult);
@@ -100,7 +101,7 @@ namespace SWorker
         public void OnCreateChooser()
         {
 			string message   = "message";
-			string imagePath = Application.persistentDataPath + "/image" + ExtensionImage;
+			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
 			SocialWorker.CreateChooser(message, imagePath, OnResult);
 //			SocialWorker.CreateChooser(message, "", OnResult);
 //			SocialWorker.CreateChooser("", imagePath, OnResult);

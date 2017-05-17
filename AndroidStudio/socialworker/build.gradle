@@ -24,12 +24,12 @@ dependencies {
 }
 
 task clearJar(type: Delete) {
-    delete '../../Assets/Plugins/Android/' + JAR_ARTIFACT_ID + '.jar'
+    delete '../../Assets/SocialWorker/Plugins/Android/' + JAR_ARTIFACT_ID + '.jar'
 }
 
 task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
-    into('../../Assets/Plugins/Android/')
+    into('../../Assets/SocialWorker/Plugins/Android/')
     include('classes.jar')
     rename('classes.jar', JAR_ARTIFACT_ID + '.jar')
 }

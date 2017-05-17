@@ -9,10 +9,12 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 
 import com.unity3d.player.UnityPlayer;
@@ -38,7 +40,7 @@ public class SocialWorker {
 	public static final String RESULT_NOT_AVAILABLE = "1";
 	/** 結果：予期せぬエラー */
 	public static final String RESULT_ERROR = "2";
-	
+
 	/**
 	 * Twitter or Facebook 投稿。ただしFacebookは画像の投稿のみ許可しており、テキストの投稿は無視されることに注意。
 	 * @param isTwitter true：Twitter、false：Facebook
@@ -54,7 +56,7 @@ public class SocialWorker {
     		if(intent != null) {
     			intent.putExtra(Intent.EXTRA_TEXT, message + BR + url);
      			if(!imagePath.equals("")) {
-    				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(imagePath)));
+    				intent = shareImageIntent(intent, imagePath);
     			}
     			UnityPlayer.currentActivity.startActivity(intent);
     			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
@@ -71,6 +73,7 @@ public class SocialWorker {
 	 * Line投稿。Lineはメッセージと画像の同時投稿は行えないことに注意。
 	 * @param message メッセージ
 	 * @param imagePath 画像パス(PNG/JPGのみ)。空文字の場合は処理されない。
+	 *                  WRITE_EXTERNAL_STORAGE権限がない場合は画像投稿不可
 	 */
 	public void postLine(String message, String imagePath) {
 		try {
@@ -100,7 +103,8 @@ public class SocialWorker {
     	try {
     		Intent intent = createAppIntent("com.instagram.android", Intent.ACTION_SEND, getIntentTypeForImage(imagePath));
 			if(intent != null) {
-				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(imagePath)));
+				intent = shareImageIntent(intent, imagePath);
+
 				UnityPlayer.currentActivity.startActivity(intent);
     			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
     		} else {
@@ -131,7 +135,7 @@ public class SocialWorker {
     			intent.putExtra(Intent.EXTRA_SUBJECT, subject);
     			intent.putExtra(Intent.EXTRA_TEXT, message);
     			if(!imagePath.equals("")) {
-    				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(imagePath)));
+    				intent = shareImageIntent(intent, imagePath);
     			}
     			UnityPlayer.currentActivity.startActivity(intent);
     			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
@@ -156,7 +160,7 @@ public class SocialWorker {
     		if(intent != null) {
     			intent.putExtra(Intent.EXTRA_TEXT, message);
     			if(!imagePath.equals("")) {
-    				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(imagePath)));
+    				intent = shareImageIntent(intent, imagePath);
     			}
     			UnityPlayer.currentActivity.startActivity(Intent.createChooser(intent, "Share"));
     			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
@@ -206,5 +210,34 @@ public class SocialWorker {
 	    } catch (Exception e) {
 	    	throw e;
 	    }
+	}
+
+	private static boolean isInternal(String path) {
+		Context context = UnityPlayer.currentActivity;
+		if(path.startsWith(context.getFilesDir().toString())) return true;
+		if(path.startsWith(context.getCacheDir().toString())) return true;
+		return false;
+	}
+
+	private static Uri getShareUri(String imagePath) {
+		Uri shareUri = null;
+
+		if(isInternal(imagePath)){
+			Context context = UnityPlayer.currentActivity;
+			shareUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", new File(imagePath));
+		}else{
+			shareUri = Uri.fromFile(new File(imagePath));
+		}
+
+		return shareUri;
+	}
+
+	private static Intent shareImageIntent(Intent intent, String imagePath) {
+		Intent shareImageIntent = new Intent(intent);
+		Uri uri = getShareUri(imagePath);
+		shareImageIntent.putExtra(Intent.EXTRA_STREAM, uri);
+		shareImageIntent.setData(uri);
+		shareImageIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		return shareImageIntent;
 	}
 }
