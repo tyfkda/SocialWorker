@@ -66,6 +66,7 @@ static const char *kResultError = "2";
     NSString *url;
     if([imagePath length] == 0) {
         // メッセージ投稿
+        message = [message stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         url = [NSString stringWithFormat:@"line://msg/text/%@", message];
     } else {
         // 画像投稿
