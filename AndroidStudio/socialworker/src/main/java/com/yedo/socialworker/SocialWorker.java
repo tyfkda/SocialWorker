@@ -7,7 +7,6 @@ package com.yedo.socialworker;
 import java.io.File;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Locale;
 
 import android.content.Context;
 import android.content.Intent;
@@ -51,22 +50,22 @@ public class SocialWorker {
 	public static void postTwitterOrFacebook(boolean isTwitter, String message, String url, String imagePath) {
 		try {
 			String name = (isTwitter) ? "com.twitter.android" : "com.facebook.katana";
-			String type = (imagePath.equals("")) ? "text/plain" : getIntentTypeForImage(imagePath);
+			String type = getIntentTypeForImage(imagePath);
 			Intent intent = createAppIntent(name, Intent.ACTION_SEND, type);
-    		if(intent != null) {
-    			intent.putExtra(Intent.EXTRA_TEXT, message + BR + url);
-     			if(!imagePath.equals("")) {
-    				intent = shareImageIntent(intent, imagePath);
-    			}
-    			UnityPlayer.currentActivity.startActivity(intent);
-    			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
-    		} else {
-    			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_NOT_AVAILABLE);
-    		}
-    	} catch(Exception e) {
-    		Log.e(TAG, "postTwitterOrFacebook", e);
-    		UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_ERROR);
-    	}
+			if (intent != null) {
+				intent.putExtra(Intent.EXTRA_TEXT, message + BR + url);
+				if (imagePath != null && !imagePath.equals("")) {
+					intent = shareImageIntent(intent, imagePath);
+				}
+				UnityPlayer.currentActivity.startActivity(intent);
+				UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
+			} else {
+				UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_NOT_AVAILABLE);
+			}
+		} catch(Exception e) {
+			Log.e(TAG, "postTwitterOrFacebook", e);
+			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_ERROR);
+		}
 	}
 	
 	/**
@@ -79,20 +78,20 @@ public class SocialWorker {
 		try {
 			Intent intent = createAppIntent("jp.naver.line.android", Intent.ACTION_SEND, "text/plain");
 			if(intent != null) {
-    			if(imagePath.equals("")) {
-    				intent = new Intent(Intent.ACTION_VIEW, Uri.parse("line://msg/text/" + URLEncoder.encode(message, "UTF-8")));
-    			} else {
-    				intent = new Intent(Intent.ACTION_VIEW, Uri.parse("line://msg/image/" + imagePath));
-    			}
-    			UnityPlayer.currentActivity.startActivity(intent);
-    			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
-    		} else {
-    			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_NOT_AVAILABLE);
-    		}
-    	} catch(Exception e) {
-    		Log.e(TAG, "postLine", e);
-    		UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_ERROR);
-    	}
+				if (imagePath != null && !imagePath.equals("")) {
+					intent = new Intent(Intent.ACTION_VIEW, Uri.parse("line://msg/text/" + URLEncoder.encode(message, "UTF-8")));
+				} else {
+					intent = new Intent(Intent.ACTION_VIEW, Uri.parse("line://msg/image/" + imagePath));
+				}
+				UnityPlayer.currentActivity.startActivity(intent);
+				UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
+			} else {
+				UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_NOT_AVAILABLE);
+			}
+		} catch(Exception e) {
+			Log.e(TAG, "postLine", e);
+			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_ERROR);
+		}
 	}
 	
     /**
@@ -100,20 +99,20 @@ public class SocialWorker {
      * @param imagePath 画像パス(PNG/JPGのみ)
      */
     public static void postInstagram(String imagePath) {
-    	try {
-    		Intent intent = createAppIntent("com.instagram.android", Intent.ACTION_SEND, getIntentTypeForImage(imagePath));
-			if(intent != null) {
-				intent = shareImageIntent(intent, imagePath);
+			try {
+				Intent intent = createAppIntent("com.instagram.android", Intent.ACTION_SEND, getIntentTypeForImage(imagePath));
+				if (imagePath != null && !imagePath.equals("")) {
+					intent = shareImageIntent(intent, imagePath);
 
-				UnityPlayer.currentActivity.startActivity(intent);
-    			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
-    		} else {
-    			UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_NOT_AVAILABLE);
-    		}
-    	} catch(Exception e) {
-    		Log.e(TAG, "postInstagram", e);
-    		UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_ERROR);
-    	}
+					UnityPlayer.currentActivity.startActivity(intent);
+					UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_SUCCESS);
+				} else {
+					UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_NOT_AVAILABLE);
+				}
+			} catch(Exception e) {
+				Log.e(TAG, "postInstagram", e);
+				UnityPlayer.UnitySendMessage(UNITY_SEND_GAMEOBJECT, UNITY_SEND_CALLBACK, RESULT_ERROR);
+			}
     }
 	
     /**
@@ -134,7 +133,7 @@ public class SocialWorker {
     			intent.putExtra(Intent.EXTRA_BCC, bcc.split(","));
     			intent.putExtra(Intent.EXTRA_SUBJECT, subject);
     			intent.putExtra(Intent.EXTRA_TEXT, message);
-    			if(!imagePath.equals("")) {
+					if (imagePath != null && !imagePath.equals("")) {
     				intent = shareImageIntent(intent, imagePath);
     			}
     			UnityPlayer.currentActivity.startActivity(intent);
@@ -155,11 +154,11 @@ public class SocialWorker {
      */
     public static void createChooser(String message, String imagePath) {
     	try {
-    		String type = (imagePath.equals("")) ? "text/plain" : getIntentTypeForImage(imagePath);
+    		String type = getIntentTypeForImage(imagePath);
     		Intent intent = createAppIntent(null, Intent.ACTION_SEND, type);
     		if(intent != null) {
     			intent.putExtra(Intent.EXTRA_TEXT, message);
-    			if(!imagePath.equals("")) {
+					if (imagePath != null && !imagePath.equals("")) {
     				intent = shareImageIntent(intent, imagePath);
     			}
     			UnityPlayer.currentActivity.startActivity(Intent.createChooser(intent, "Share"));
@@ -179,8 +178,10 @@ public class SocialWorker {
 	 * @return Intentタイプ
 	 */
 	private static String getIntentTypeForImage(String imagePath) {
-		String extension = imagePath.substring(imagePath.lastIndexOf(".") + 1).toLowerCase(Locale.getDefault()) ;
-		return (extension == ".png") ? "image/png" : "image/jpg";
+	  if (imagePath == null || imagePath.equals(""))
+	    return "text/plain";
+		String extension = imagePath.substring(imagePath.lastIndexOf(".") + 1);
+		return extension.equalsIgnoreCase("png") ? "image/png" : "image/jpg";
 	}
 	
 	/**
@@ -193,51 +194,52 @@ public class SocialWorker {
 	private static Intent createAppIntent(String name, String action, String type) throws Exception {
 		try {
 			Intent intent = new Intent(action);
-	        intent.setType(type);
-	        
-	        List<ResolveInfo> ris = UnityPlayer.currentActivity.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-	        if(name == "" || name == null) {
-	        	return (!ris.isEmpty()) ? intent : null;
-	        } else {
-	        	for (ResolveInfo ri : ris) {
-	        		if (ri.activityInfo.packageName.equals(name)) {
-		            	intent.setClassName(ri.activityInfo.packageName, ri.activityInfo.name);
-		                return intent;
-		            }
-		        }
-	        }
-	        return null;
-	    } catch (Exception e) {
-	    	throw e;
-	    }
+			intent.setType(type);
+
+			List<ResolveInfo> ris = UnityPlayer.currentActivity.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+			if(name == null || name.equals("")) {
+				return (!ris.isEmpty()) ? intent : null;
+			} else {
+				for (ResolveInfo ri : ris) {
+					if (ri.activityInfo.packageName.equals(name)) {
+						intent.setClassName(ri.activityInfo.packageName, ri.activityInfo.name);
+						return intent;
+					}
+				}
+			}
+			return null;
+		} catch (Exception e) {
+			throw e;
+		}
 	}
 
-	private static boolean isInternal(String path) {
-		Context context = UnityPlayer.currentActivity;
-		if(path.startsWith(context.getFilesDir().toString())) return true;
-		if(path.startsWith(context.getCacheDir().toString())) return true;
-		return false;
-	}
+	//private static boolean isInternal(String path) {
+	//	Context context = UnityPlayer.currentActivity;
+	//	if(path.startsWith(context.getFilesDir().toString())) return true;
+	//	if(path.startsWith(context.getCacheDir().toString())) return true;
+	//	return false;
+	//}
 
 	private static Uri getShareUri(String imagePath) {
 		Uri shareUri = null;
 
-		if(isInternal(imagePath)){
+		//if(isInternal(imagePath)){
 			Context context = UnityPlayer.currentActivity;
 			shareUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", new File(imagePath));
-		}else{
-			shareUri = Uri.fromFile(new File(imagePath));
-		}
+		//}else{
+		//	shareUri = Uri.fromFile(new File(imagePath));
+		//}
 
 		return shareUri;
 	}
 
-	private static Intent shareImageIntent(Intent intent, String imagePath) {
-		Intent shareImageIntent = new Intent(intent);
+	private static Intent shareImageIntent(Intent baseIntent, String imagePath) {
+		Intent intent = new Intent(baseIntent);
 		Uri uri = getShareUri(imagePath);
-		shareImageIntent.putExtra(Intent.EXTRA_STREAM, uri);
-		shareImageIntent.setData(uri);
-		shareImageIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		return shareImageIntent;
+		String mimeType = getIntentTypeForImage(imagePath);
+		intent.setDataAndType(uri, mimeType);
+		intent.putExtra(Intent.EXTRA_STREAM, uri);
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		return intent;
 	}
 }

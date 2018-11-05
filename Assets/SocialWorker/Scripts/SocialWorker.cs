@@ -12,7 +12,7 @@ namespace SWorker
     /// SocialWorker
     /// </summary>
     public class SocialWorker : MonoBehaviour
-	{
+    {
         /// <summary>
         /// ネイティブプラグイン定義
         /// </summary>
@@ -66,9 +66,9 @@ namespace SWorker
         {
             if (message == null) { message = ""; }
             if (url == null) { url = ""; }
-            if (imagePath == null) { imagePath = ""; }
             SocialWorker.onResult = onResult;
 #if UNITY_IPHONE
+            if (imagePath == null) { imagePath = ""; }
             postTwitterOrFacebook(true, message, url, imagePath);
 #elif UNITY_ANDROID
             using (var nativeClass = new AndroidJavaClass(NATIVE_CLASS_NAME)) {
@@ -84,10 +84,10 @@ namespace SWorker
         /// <param name="onResult">結果コールバック</param>
         public static void PostFacebook(string imagePath, Action<SocialWorkerResult> onResult = null)
         {
-            if (imagePath == null) { imagePath = ""; }
             SocialWorker.onResult = onResult;
 #if UNITY_IPHONE
-			postTwitterOrFacebook(false, "", "", imagePath);
+            if (imagePath == null) { imagePath = ""; }
+            postTwitterOrFacebook(false, "", "", imagePath);
 #elif UNITY_ANDROID
             using (var nativeClass = new AndroidJavaClass(NATIVE_CLASS_NAME)) {
                 nativeClass.CallStatic("postTwitterOrFacebook", false, "", "", imagePath);
@@ -104,10 +104,10 @@ namespace SWorker
         public static void PostLine(string message, string imagePath, Action<SocialWorkerResult> onResult = null)
         {
             if (message == null) { message = ""; }
-            if (imagePath == null) { imagePath = ""; }
-			SocialWorker.onResult = onResult;
+            SocialWorker.onResult = onResult;
 #if UNITY_IPHONE
-			postLine(message, imagePath);
+            if (imagePath == null) { imagePath = ""; }
+            postLine(message, imagePath);
 #elif UNITY_ANDROID
             using (var nativeClass = new AndroidJavaClass(NATIVE_CLASS_NAME)) {
                 nativeClass.CallStatic("postLine", message, imagePath);
@@ -116,15 +116,15 @@ namespace SWorker
         }
 
         /// <summary>
-		/// Instagram投稿。Instagramは画像の投稿のみ行える。
+        /// Instagram投稿。Instagramは画像の投稿のみ行える。
         /// </summary>
         /// <param name="imagePath">画像パス(PNG/JPGのみ)</param>
         /// <param name="onResult">結果コールバック</param>
         public static void PostInstagram(string imagePath, Action<SocialWorkerResult> onResult = null)
         {
-            if (imagePath == null) { imagePath = ""; }
             SocialWorker.onResult = onResult;
 #if UNITY_IPHONE
+            if (imagePath == null) { imagePath = ""; }
             postInstagram(imagePath);
 #elif UNITY_ANDROID
             using (var nativeClass = new AndroidJavaClass(NATIVE_CLASS_NAME)) {
@@ -161,9 +161,9 @@ namespace SWorker
             if (bcc == null) { bcc = new string[] { "" }; }
             if (subject == null) { subject = ""; }
             if (message == null) { message = ""; }
-            if (imagePath == null) { imagePath = ""; }
             SocialWorker.onResult = onResult;
 #if UNITY_IPHONE
+            if (imagePath == null) { imagePath = ""; }
             postMail(string.Join(",", to), string.Join(",", cc), string.Join(",", bcc), subject, message, imagePath);
 #elif UNITY_ANDROID
             using (var nativeClass = new AndroidJavaClass(NATIVE_CLASS_NAME)) {
@@ -181,9 +181,9 @@ namespace SWorker
         public static void CreateChooser(string message, string imagePath, Action<SocialWorkerResult> onResult = null)
         {
             if (message == null) { message = ""; }
-            if (imagePath == null) { imagePath = ""; }
             SocialWorker.onResult = onResult;
 #if UNITY_IPHONE
+            if (imagePath == null) { imagePath = ""; }
             createChooser(message, imagePath);
 #elif UNITY_ANDROID
             using (var nativeClass = new AndroidJavaClass(NATIVE_CLASS_NAME)) {
@@ -204,7 +204,7 @@ namespace SWorker
                 onResult = null;
             }
         }
-	}
+    }
 
     /// <summary>
     /// 結果値

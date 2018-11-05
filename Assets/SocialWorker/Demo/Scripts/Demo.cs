@@ -11,13 +11,23 @@ namespace SWorker
     /// <summary>
     /// デモシーン
     /// </summary>
-	public class Demo : MonoBehaviour
-	{
-		static readonly string ExtensionImage = ".png";
-//		static readonly string ExtensionImage = ".jpeg";
+    public class Demo : MonoBehaviour
+    {
+        static readonly string ExtensionImage = ".png";
+        //static readonly string ExtensionImage = ".jpeg";
+        static readonly string message   = "message";
+        static readonly string url = "http://yedo-factory.co.jp/";
 
-		public Text Result;
-		public RawImage Image;
+        public Text Result;
+        public RawImage Image;
+
+        private static string ImageDir {
+            get { return Application.temporaryCachePath + "/share"; }
+        }
+
+        private static string ImagePath {
+            get { return ImageDir + "/image" + ExtensionImage; }
+        }
 
         /// <summary>
         /// 開始処理
@@ -25,14 +35,13 @@ namespace SWorker
         void Start()
         {
             // Post画像は端末から読み込むので、ない場合はあらかじめ保存しておくこと
-			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
-            if (!File.Exists(imagePath)) 
-            {
-                Directory.CreateDirectory(Application.persistentDataPath + "/share");
-				Texture2D texture = (Texture2D)Image.texture;
-				byte[] data = (ExtensionImage == ".png") ? texture.EncodeToPNG () : texture.EncodeToJPG ();
-				File.WriteAllBytes(imagePath, data); 
-            }
+            if (File.Exists(ImagePath))
+                File.Delete(ImagePath);
+
+            Directory.CreateDirectory(ImageDir);
+            Texture2D texture = (Texture2D)Image.texture;
+            byte[] data = (ExtensionImage == ".png") ? texture.EncodeToPNG () : texture.EncodeToJPG ();
+            File.WriteAllBytes(ImagePath, data); 
         }
 
         /// <summary>
@@ -40,12 +49,7 @@ namespace SWorker
         /// </summary>
         public void OnPostTwitter()
         {
-			string message   = "message";
-			string url       = "http://yedo-factory.co.jp/";
-			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
-			SocialWorker.PostTwitter(message, url, imagePath, OnResult);
-//			SocialWorker.PostTwitter(message, "", OnResult);
-//			SocialWorker.PostTwitter("", imagePath, OnResult);
+            SocialWorker.PostTwitter(message, url, ImagePath, OnResult);
         }
 
         /// <summary>
@@ -53,8 +57,7 @@ namespace SWorker
         /// </summary>
         public void OnPostFacebook()
         {
-			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
-			SocialWorker.PostFacebook(imagePath, OnResult);
+            SocialWorker.PostFacebook(ImagePath, OnResult);
         }
 
         /// <summary>
@@ -62,11 +65,7 @@ namespace SWorker
         /// </summary>
         public void OnPostLine()
         {
-			string message   = "message";
-			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
-			SocialWorker.PostLine(message, imagePath, OnResult);
-//			SocialWorker.PostLine(message, "", OnResult);
-//			SocialWorker.PostLine("", imagePath, OnResult);
+            SocialWorker.PostLine(message + "\n" + url, ImagePath, OnResult);
         }
 
         /// <summary>
@@ -74,8 +73,7 @@ namespace SWorker
         /// </summary>
         public void OnPostInstagram()
         {
-			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
-			SocialWorker.PostInstagram(imagePath, OnResult);
+            SocialWorker.PostInstagram(ImagePath, OnResult);
         }
 
         /// <summary>
@@ -83,15 +81,11 @@ namespace SWorker
         /// </summary>
         public void OnPostMail()
         {
-			string[] to      = new string[] { "to@hoge.com" };
-			string[] cc      = new string[] { "cc@hoge.com" };
-			string[] bcc     = new string[] { "bcc@hoge.com" };
-			string subject   = "subject";
-			string message   = "message";
-			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
-			SocialWorker.PostMail(to, cc, bcc, subject, message, imagePath, OnResult);
-//			SocialWorker.PostMail(message, "", OnResult);
-//			SocialWorker.PostMail("", imagePath, OnResult);
+            string[] to      = new string[] { "to@hoge.com" };
+            string[] cc      = new string[] { "cc@hoge.com" };
+            string[] bcc     = new string[] { "bcc@hoge.com" };
+            string subject   = "subject";
+            SocialWorker.PostMail(to, cc, bcc, subject, message + "\n" + url, ImagePath, OnResult);
         }
 
         /// <summary>
@@ -99,11 +93,7 @@ namespace SWorker
         /// </summary>
         public void OnCreateChooser()
         {
-			string message   = "message";
-			string imagePath = Application.persistentDataPath + "/share/image" + ExtensionImage;
-			SocialWorker.CreateChooser(message, imagePath, OnResult);
-//			SocialWorker.CreateChooser(message, "", OnResult);
-//			SocialWorker.CreateChooser("", imagePath, OnResult);
+            SocialWorker.CreateChooser(message + "\n" + url, ImagePath, OnResult);
         }
 
         /// <summary>
@@ -114,16 +104,16 @@ namespace SWorker
         {
             switch(res)
             {
-				case SocialWorkerResult.Success:
-					Result.text = "Result : Success";
-                    break;
-                case SocialWorkerResult.NotAvailable:
-					Result.text = "Result : NotAvailable";
-                    break;
-                case SocialWorkerResult.Error:
-					Result.text = "Result : Error";
-                    break;
+            case SocialWorkerResult.Success:
+                Result.text = "Result : Success";
+                break;
+            case SocialWorkerResult.NotAvailable:
+                Result.text = "Result : NotAvailable";
+                break;
+            case SocialWorkerResult.Error:
+                Result.text = "Result : Error";
+                break;
             }
         }
-	}
+    }
 }
