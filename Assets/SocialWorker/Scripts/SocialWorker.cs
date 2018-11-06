@@ -200,8 +200,10 @@ namespace SWorker
         {
             if (onResult != null) 
             {
-                onResult((SocialWorkerResult)int.Parse(res));
-                onResult = null;
+                var result = (SocialWorkerResult)int.Parse(res);
+                onResult(result);
+                if (result != SocialWorkerResult.DialogOpened)
+                    onResult = null;
             }
         }
     }
@@ -222,6 +224,19 @@ namespace SWorker
         /// <summary>
         /// 予期せぬエラー
         /// </summary>
-        Error = 2
+        Error = 2,
+
+        /// <summary>
+        /// ダイアログが開かれた
+        /// </summary>
+        DialogOpened = 3,
+        /// <summary>
+        /// キャンセルされた
+        /// </summary>
+        Cancelled = 4,
+        /// <summary>
+        /// ポストされた
+        /// </summary>
+        PostDone = 5,
     }
 }

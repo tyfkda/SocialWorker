@@ -20,6 +20,13 @@ static const char *kResultNotAvailable = "1";
 /** 結果：予期せぬエラー */
 static const char *kResultError = "2";
 
+/** 結果：ダイアログが開かれた */
+static const char *kResultDialogOpened = "3";
+/** 結果：キャンセルされた */
+static const char *kResultCancelled = "4";
+/** 結果：投稿された */
+static const char *kResultPostDone = "5";
+
 /**
  * SocialWorker
  * @author okamura
@@ -49,9 +56,19 @@ static const char *kResultError = "2";
 	    if([imagePath length] != 0) {
 	        [vc addImage:[UIImage imageWithContentsOfFile:imagePath]];
 	    }
-	    [vc setCompletionHandler:^(SLComposeViewControllerResult result) {}];
-	    [UnityGetGLViewController() presentViewController:vc animated:YES completion:nil];
-	    UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultSuccess);
+	    [vc setCompletionHandler:^(SLComposeViewControllerResult result) {
+        switch (result) {
+          case SLComposeViewControllerResultDone:
+            UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultPostDone);
+            break;
+          case SLComposeViewControllerResultCancelled:
+            UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultCancelled);
+            break;
+        }
+      }];
+      [UnityGetGLViewController() presentViewController:vc animated:YES completion:nil];
+      //UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultSuccess);
+      UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultDialogOpened);
     } else {
     	UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultNotAvailable);
     }
@@ -191,15 +208,19 @@ static const char *kResultError = "2";
  */
 - (void)createChooser:(NSString *)message imagePath:(NSString *)imagePath {
     NSArray *activities = [NSArray arrayWithObjects:message, nil];
-	if([imagePath length] != 0) {
-		activities = [activities arrayByAddingObject:[UIImage imageWithContentsOfFile:imagePath]];
-	}
-    
-    UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:activities applicationActivities:nil];
-	if ([[UIDevice currentDevice].systemVersion floatValue] > 7.1f) {
-        vc.popoverPresentationController.sourceView = UnityGetGLViewController().view;
-	}
-    [UnityGetGLViewController() presentViewController:vc animated:YES completion:nil];
+  if([imagePath length] != 0) {
+    activities = [activities arrayByAddingObject:[UIImage imageWithContentsOfFile:imagePath]];
+  }
+
+  UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:activities applicationActivities:nil];
+  if ([[UIDevice currentDevice].systemVersion floatValue] > 7.1f) {
+    vc.popoverPresentationController.sourceView = UnityGetGLViewController().view;
+  }
+  vc.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+    UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, completed ? kResultPostDone : kResultCancelled);
+  };
+  [UnityGetGLViewController() presentViewController:vc animated:YES completion:nil];
+  UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultDialogOpened);
 }
 @end
 

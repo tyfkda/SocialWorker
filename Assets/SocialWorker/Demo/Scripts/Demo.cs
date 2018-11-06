@@ -113,6 +113,15 @@ namespace SWorker
             case SocialWorkerResult.Error:
                 Result.text = "Result : Error";
                 break;
+            case SocialWorkerResult.DialogOpened:
+                Result.text = "Result : DialogOpened";
+                break;
+            case SocialWorkerResult.Cancelled:
+                Result.text = "Result : Cancelled";
+                break;
+            case SocialWorkerResult.PostDone:
+                Result.text = "Result : PostDone";
+                break;
             }
         }
     }
