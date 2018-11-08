@@ -49,26 +49,26 @@ static const char *kResultPostDone = "5";
     NSString *type = (isTwitter) ? SLServiceTypeTwitter : SLServiceTypeFacebook;
     if ([SLComposeViewController isAvailableForServiceType:type]) {
     	SLComposeViewController *vc = [SLComposeViewController composeViewControllerForServiceType:type];
-	    [vc setInitialText:message];
-	    if([url length] != 0) {
-	        [vc addURL:[NSURL URLWithString:url]];
-	    }
-	    if([imagePath length] != 0) {
-	        [vc addImage:[UIImage imageWithContentsOfFile:imagePath]];
-	    }
-	    [vc setCompletionHandler:^(SLComposeViewControllerResult result) {
-        switch (result) {
-          case SLComposeViewControllerResultDone:
-            UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultPostDone);
-            break;
-          case SLComposeViewControllerResultCancelled:
-            UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultCancelled);
-            break;
+        [vc setInitialText:message];
+        if([url length] != 0) {
+            [vc addURL:[NSURL URLWithString:url]];
         }
-      }];
-      [UnityGetGLViewController() presentViewController:vc animated:YES completion:nil];
-      //UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultSuccess);
-      UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultDialogOpened);
+        if([imagePath length] != 0) {
+            [vc addImage:[UIImage imageWithContentsOfFile:imagePath]];
+        }
+        [vc setCompletionHandler:^(SLComposeViewControllerResult result) {
+            switch (result) {
+            case SLComposeViewControllerResultDone:
+                UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultPostDone);
+                break;
+            case SLComposeViewControllerResultCancelled:
+                UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultCancelled);
+                break;
+            }
+        }];
+        [UnityGetGLViewController() presentViewController:vc animated:YES completion:nil];
+        //UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultSuccess);
+        UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultDialogOpened);
     } else {
     	UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultNotAvailable);
     }
@@ -194,7 +194,7 @@ static const char *kResultPostDone = "5";
     }
 }
 
-/** 
+/**
  * メール結果
  */
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
@@ -217,7 +217,7 @@ static const char *kResultPostDone = "5";
     vc.popoverPresentationController.sourceView = UnityGetGLViewController().view;
   }
   vc.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-    UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, completed ? kResultPostDone : kResultCancelled);
+    UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, activityError ? kResultError : completed ? kResultPostDone : kResultCancelled);
   };
   [UnityGetGLViewController() presentViewController:vc animated:YES completion:nil];
   UnitySendMessage(kUnitySendGameObject, kUnitySendCallback, kResultDialogOpened);
@@ -231,7 +231,7 @@ extern "C" {
     static SocialWorker *worker =[[SocialWorker alloc] init];
     UIViewController *UnityGetGLViewController();
     void UnitySendMessage(const char *, const char *, const char *);
-    
+
     static NSString *getStr(char *str){
         if (str) {
             return [NSString stringWithCString: str encoding:NSUTF8StringEncoding];
@@ -239,16 +239,16 @@ extern "C" {
             return [NSString stringWithUTF8String: ""];
         }
     }
-    
-	void postTwitterOrFacebook(BOOL isTwitter, char *message, char *url, char *imagePath){
+
+    void postTwitterOrFacebook(BOOL isTwitter, char *message, char *url, char *imagePath){
         [worker postTwitterOrFacebook:isTwitter message:getStr(message) url:getStr(url) imagePath:getStr(imagePath)];
     }
 
-	void postLine(char *message, char *imagePath){
+    void postLine(char *message, char *imagePath){
         [worker postLine:getStr(message) imagePath:getStr(imagePath)];
     }
 
-	void postInstagram(char *imagePath){
+    void postInstagram(char *imagePath){
         [worker postInstagram:getStr(imagePath)];
     }
 
@@ -256,7 +256,7 @@ extern "C" {
         [worker postMail:getStr(to) cc:getStr(cc) bcc:getStr(bcc) subject:getStr(subject) message:getStr(message) imagePath:getStr(imagePath)];
     }
 
-	void createChooser(char *message, char *imagePath){
+    void createChooser(char *message, char *imagePath){
         [worker createChooser:getStr(message) imagePath:getStr(imagePath)];
     }
 }
